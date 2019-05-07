@@ -1,4 +1,8 @@
-Cordova-JED
+SPA4J
 ===========
 
-Mobility has been around for very long time in the form of Portable Devices such as Laptops. Cordova-JED allows all JavaFX Enabled Devices (JED of Cordova-JED) to run Cordova based source code developed for other platforms.
+Spa for Java (SPA4J) is a library created to support and run Single Page application (like Angular application) in different Java wrappers. As of now, the library provides supporting classes to wrap the angular application in a 
+1. JavaFX based desktop application 
+2. Web Archive and supports progressive web app using AppCache
+
+I will attempt to support other SPA app type like React, if not supported automatically.
