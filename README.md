@@ -5,4 +5,4 @@ Spa for Java (SPA4J) is a library created to support and run Single Page applica
 1. JavaFX based desktop application 
 2. Web Archive and supports progressive web app using AppCache
 
-I will attempt to support other SPA app type like React, if not supported automatically.
+I will attempt to support other SPA app type (like React), if not supported automatically.
