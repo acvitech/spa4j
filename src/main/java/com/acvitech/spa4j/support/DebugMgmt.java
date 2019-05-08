@@ -47,7 +47,7 @@ public class DebugMgmt {
     
     /**
      * Method to show or print log messages (e.g. console.log() and sysout()) in case of normal log
-     * @param msg
+     * @param msg this is the information that will be printed
      */
     public static void log(Object msg) {
         out.println("Log: "+ msg);
@@ -56,7 +56,7 @@ public class DebugMgmt {
     
     /**
      * Method to show or print log messages (e.g. console.log() and sysout()) in case of debug
-     * @param msg
+     * @param msg  this is the information that will be printed
      */
     public static void debug(Object msg) {
         if (debugEnabled || buildDebugEnabled) {
@@ -66,7 +66,7 @@ public class DebugMgmt {
     
     /**
      * Method to show or print log messages (e.g. console.log() and sysout()) in case of Warning
-     * @param msg
+     * @param msg this is the information that will be printed
      */
     public static void warn(Object msg) {
         out.println("Warn: "+msg);
@@ -74,7 +74,7 @@ public class DebugMgmt {
     
     /**
      * Method to show or print log messages (e.g. console.log() and sysout()) in case of Error
-     * @param msg
+     * @param msg this is the information that will be printed
      */
     public static void error(Object msg) {
         out.println("Error: "+msg);

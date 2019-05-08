@@ -28,15 +28,7 @@ public class BrowserRegion extends Region {
     private WebView webView = new WebView();
     private WebEngine webEngine = webView.getEngine();
    
-    /**
-     *
-     * @param url
-     */
-    public void showExtURL(String url) {
-        if (hostServices != null) {
-            hostServices.showDocument(url);
-        }
-    }
+
     
     
     /**
@@ -57,11 +49,7 @@ public class BrowserRegion extends Region {
         );
     }
 
-    /**
-     *
-     * @param stage
-     * @param hostServices
-     */
+
     public BrowserRegion(Stage stage,HostServices hostServices){
         this();
         this.stage = stage;
@@ -171,9 +159,6 @@ public class BrowserRegion extends Region {
     public WebEngine getWebEngine() {
         return webEngine;
     }
-
-
-    
     
     
 }

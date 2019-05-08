@@ -22,11 +22,7 @@ public class JFXWindow extends Application {
         Application.launch(args);
     }
     
-    /**
-     * Method to start CME stage or CME as a browser application
-     *
-     * @param stage
-     */
+  
     @Override
     public void start(Stage stage) {
         try {
