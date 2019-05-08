@@ -3,10 +3,37 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.acvitech</groupId>
     <artifactId>spa4j</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     
+    
     <inceptionYear>2015</inceptionYear>
+    
+    <name>Single Page Application wrapper in Java</name>
+    <description>Single Page Application for Java (SPA4J) is a library created to support and run Single Page application (like Angular application) in different Java based wrappers. As of now, the library provides supporting classes to wrap an angular application in a JavaFX based desktop application</description>
+    <url>https://github.com/acvitech/spa4j</url>
+
+    <organization>
+            <url>http://www.acvitech.com</url>
+            <name>acvitech</name>
+    </organization>
+
+    <licenses>
+            <license>
+                    <name>The Apache License, Version 2.0</name>
+                    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            </license>
+    </licenses>
+
+    <developers>
+            <developer>
+                    <name>Acvitech</name>
+                    <email>avikarz@gmail.com</email>
+                    <organization>Acvitech</organization>
+                    <organizationUrl>http://www.acvitech.com</organizationUrl>
+                    <timezone>UTC+05:30</timezone>
+            </developer>
+    </developers>
     
     <scm>
         <connection>scm:git:git://github.com/acvitech/spa4j.git</connection>
