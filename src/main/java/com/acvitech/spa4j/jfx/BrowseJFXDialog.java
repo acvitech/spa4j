@@ -19,9 +19,9 @@ import com.acvitech.spa4j.support.ConfigManager;
 public class BrowseJFXDialog extends javax.swing.JDialog {
 
     /**
-     * Creates new form LauncherDialog
-     * @param parent
-     * @param modal
+     * Creates new Dialog to collect the missing information about JavaFX library.
+     * @param parent the parent frame of the dialog
+     * @param modal whether to show the windows as modal or not? possible value is true and false
      */
     public BrowseJFXDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);

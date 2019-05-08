@@ -21,7 +21,9 @@ import java.util.prefs.Preferences;
 public class JFXAppLauncher {
 
     /**
-     * @param args the command line arguments
+     * This method starts the JavaFX Application
+     * 
+     * @param args not null command line arguments received in main()
      */
     public static void launch(String args[]) {
 
@@ -29,7 +31,7 @@ public class JFXAppLauncher {
             setJavaFXLocation("");
         }
 
-        if (args.length > 0) {
+        if (args!=null && args.length > 0) {
 
             if (args[0].trim().equalsIgnoreCase("debug") || (args.length > 1 && args[1].trim().equalsIgnoreCase("debug"))) {
                 DebugMgmt.setBuildDebugEnabled(true);
