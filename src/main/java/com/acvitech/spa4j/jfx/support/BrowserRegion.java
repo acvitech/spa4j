@@ -1,17 +1,39 @@
-package com.acvitech.spa4j.jfx;
+/*
+ * Copyright 2019 acvitech.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.acvitech.spa4j.jfx.support;
 
 
-import com.acvitech.spa4j.support.DebugMgmt;
-import com.acvitech.spa4j.support.ConfigManager;
+import com.acvitech.spa4j.util.RuntimeSettings;
+import com.acvitech.spa4j.util.Bean;
+import com.acvitech.spa4j.util.SPA4JLogger;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import javafx.application.HostServices;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Worker;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.layout.Region;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 /**
@@ -26,7 +48,6 @@ public class BrowserRegion extends Region {
     private Stage stage;
 
     private WebView webView = new WebView();
-    private WebEngine webEngine = webView.getEngine();
    
 
     
@@ -56,8 +77,29 @@ public class BrowserRegion extends Region {
         this.hostServices = hostServices;
     }
 
-    public boolean isCloseAllowed(){   
-        return (Boolean) window.eval("isCloseAllowed()");   
+    public boolean isCloseAllowed(){ 
+        boolean isAllowed = true;
+        
+        try{
+            isAllowed = (Boolean) window.eval("isCloseAllowed()");
+        }catch(JSException ex){
+            SPA4JLogger.debug("isCloseAllowed() is not defined in HTML DOM."
+                    + " Define it if you wish to take a decision on whether to "
+                    + "allow a user to close the window or not.");
+        }catch(Exception ex){
+            SPA4JLogger.error(ex);
+        }
+        
+        if(isAllowed){
+            RuntimeSettings.getBeans().entrySet().forEach((Map.Entry<String, Bean> es) -> {
+                try{
+                    es.getValue().destroy();
+                }catch(Exception ex){
+                    SPA4JLogger.error("Error calling destroy() on "+es.getKey()+" bean\n"+ex);
+                }
+            });             
+        }
+        return isAllowed;    
     }
     
     
@@ -66,46 +108,76 @@ public class BrowserRegion extends Region {
         getStyleClass().add("browser");
         URL url = null;
         try {
-            if (DebugMgmt.isDebugEnabled()) {
-                url = new URL(ConfigManager.getSpaDebugURL());  
+            if (SPA4JLogger.isDebugEnabled()) {
+                url = new URL(RuntimeSettings.getSpaDebugURL());  
             } else {
-                url = getClass().getResource(ConfigManager.getSpaInternalURL());
+                url = getClass().getResource(RuntimeSettings.getSpaInternalURL());
             }
 
         } catch (MalformedURLException ex) {
-            DebugMgmt.log(ex);
+            SPA4JLogger.log(ex);
         }
 
-        webEngine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+        getWebEngine().getLoadWorker().stateProperty().addListener((ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) -> {
 
+            SPA4JLogger.debug("Browser Event:" + observable);
 
-            window = (JSObject) webEngine.executeScript("window");
-            window.setMember("debugManager", DebugMgmt.getDebugMgmt());
-            
-            if(DebugMgmt.isDebugEnabled() || DebugMgmt.isBuildDebugEnabled()){
+            if(observable.getValue() == observable.getValue().SUCCEEDED){
+                
+                SPA4JLogger.debug("Setting up Java-JS bridge");
+                
+                window = (JSObject) getWebEngine().executeScript("window");
+                window.setMember("logger", SPA4JLogger.getLogger());
 
-                DebugMgmt.log("Browser Event:" + observable);
-                enableFirebug(webEngine);
+                RuntimeSettings.getBeanClasses().entrySet().forEach((Map.Entry<String, Class> es) -> {
 
-//                webEngine.executeScript(
-//                    "console.log = function(message){ debugManager.log('Log: '+message);};"
-//                );
-//                webEngine.executeScript(
-//                    "console.error = function(message){ debugManager.error('Error: '+message); };"
-//                );
-//                webEngine.executeScript(
-//                    "console.debug = function(message){ debugManager.debug('Debug: '+message); };"
-//                );
-//                webEngine.executeScript(
-//                    "console.warn= function(message){ debugManager.warn('Warn: '+message); };"
-//                );
+                    try {
+                        Bean beanObject = (Bean) es.getValue().getDeclaredConstructor().newInstance(); 
+                        window.setMember(es.getKey(), beanObject);
+                        beanObject.init();
+                        RuntimeSettings.addBean(es.getKey(), beanObject);
+                    } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                        SPA4JLogger.error(ex);
+                    }
+
+                });
+
+                if(SPA4JLogger.isDebugEnabled() || SPA4JLogger.isBuildDebugEnabled()){
+                    
+                    getWebEngine().executeScript(
+                        "console_log = console.log;"+
+                        "console.log = function(message){ console_log(message); debugManager.log('Log: '+message);};"
+                    );
+                    getWebEngine().executeScript(
+                        "console_error = console.error;"+
+                        "console.error = function(message){ console_error(message); debugManager.error('Error: '+message); };"
+                    );
+                    getWebEngine().executeScript(
+                        "console_debug = console.debug;"+
+                        "console.debug = function(message){console_debug(message); debugManager.debug('Debug: '+message); };"
+                    );
+                    getWebEngine().executeScript(
+                        "console_warn = console.warn;"+
+                        "console.warn= function(message){console_warn(message); debugManager.warn('Warn: '+message); };"
+                    );
+                    
+                    enableFirebug(getWebEngine());
+
+                }else{
+                    getWebEngine().executeScript(
+                        "console.log = function(message){};"+
+                        "console.error = function(message){};"+
+                        "console.debug = function(message){};"+
+                        "console.warn = function(message){};"
+                    );         
+                }
             }
         });
 
         if (url != null) {
-            webEngine.load(url.toExternalForm());
+            getWebEngine().load(url.toExternalForm());
         } else {
-
+            
         }
         getChildren().add(webView);
     }
@@ -157,7 +229,7 @@ public class BrowserRegion extends Region {
     }
 
     public WebEngine getWebEngine() {
-        return webEngine;
+        return webView.getEngine();
     }
     
     

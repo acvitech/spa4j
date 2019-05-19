@@ -1,4 +1,20 @@
-package com.acvitech.spa4j.support;
+/*
+ * Copyright 2019 acvitech.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.acvitech.spa4j.util;
 
 import static java.lang.System.out;
 
@@ -6,14 +22,14 @@ import static java.lang.System.out;
  *
  * @author avikarz
  */
-public class DebugMgmt {
+public class SPA4JLogger {
 
     /**
      * Variable debugEnabled is used to check whether application is opened in debug mode or not 
      */
     private static boolean debugEnabled = false;
 
-    private static DebugMgmt debugMgmt;
+    private static SPA4JLogger logger;
 
     /**
      *
@@ -37,11 +53,11 @@ public class DebugMgmt {
     }
 
     
-    public static DebugMgmt getDebugMgmt(){
-        if(debugMgmt==null){
-            debugMgmt = new DebugMgmt();
+    public static SPA4JLogger getLogger(){
+        if(logger==null){
+            logger = new SPA4JLogger();
         }
-        return debugMgmt;
+        return logger;
     }
     
     
@@ -81,7 +97,7 @@ public class DebugMgmt {
     }
     
     
-    private DebugMgmt() {
+    private SPA4JLogger() {
     }
 
 }

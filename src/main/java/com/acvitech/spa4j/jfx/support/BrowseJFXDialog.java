@@ -1,5 +1,19 @@
-
-package com.acvitech.spa4j.jfx;
+/*
+ * Copyright 2019 acvitech.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.acvitech.spa4j.jfx.support;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -10,7 +24,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import com.acvitech.spa4j.support.ConfigManager;
+import java.util.prefs.Preferences;
 
 /**
  *
@@ -67,7 +81,7 @@ public class BrowseJFXDialog extends javax.swing.JDialog {
         setTitle("Missing/Unconfigured OpenJFX");
         setAlwaysOnTop(true);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        setIconImage(new ImageIcon(getClass().getResource(ConfigManager.getApplicationIconURI())).getImage());
+        setIconImage(new ImageIcon(getClass().getResource(com.acvitech.spa4j.util.RuntimeSettings.getApplicationIconURI())).getImage());
         setIconImages(null);
         setName("LauncherDialog"); // NOI18N
 
@@ -143,7 +157,7 @@ public class BrowseJFXDialog extends javax.swing.JDialog {
                             .addComponent(message, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(lowerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(saveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, Short.MAX_VALUE)
+                            .addComponent(saveButton, javax.swing.GroupLayout.DEFAULT_SIZE, 112, Short.MAX_VALUE)
                             .addComponent(browseButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
@@ -200,8 +214,8 @@ public class BrowseJFXDialog extends javax.swing.JDialog {
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         performTextChange();
-        String fileLocText = JFXAppLauncher.confirmJavaFXLocation(fileLocation.getText());
-        JFXAppLauncher.setJavaFXLocation(fileLocText);
+        String fileLocText = confirmJavaFXLocation(fileLocation.getText());
+        setJavaFXLocation(fileLocText);
         this.setVisible(false);
         
     }//GEN-LAST:event_saveButtonActionPerformed
@@ -221,8 +235,8 @@ public class BrowseJFXDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_browseButtonActionPerformed
 
     private void performTextChange(){
-        String fileLocText = JFXAppLauncher.confirmJavaFXLocation(fileLocation.getText());
-        if (JFXAppLauncher.isValidJavaFXLocation(fileLocText)) {
+        String fileLocText = confirmJavaFXLocation(fileLocation.getText());
+        if (isValidJavaFXLocation(fileLocText)) {
             saveButton.setEnabled(true);
             message.setText("<HTML><FONT color=\"#009900\"> Save this settings and proceed to launch the application.</FONT></HTML>");
         } else {
@@ -231,6 +245,50 @@ public class BrowseJFXDialog extends javax.swing.JDialog {
         }
     }
     
+    
+    public static String getJavaFXLocation() {
+        Preferences pref;
+        pref = Preferences.userNodeForPackage(BrowseJFXDialog.class);
+        String ojfLocation = System.getenv("JFX_HOME");
+        if (ojfLocation == null || "".equals(ojfLocation.trim())) {
+            ojfLocation = pref.get("JavaFXModuleLocation", "");
+        }
+        return ojfLocation;
+    }
+
+    public static void setJavaFXLocation(String location) {
+        Preferences pref;
+        pref = Preferences.userNodeForPackage(BrowseJFXDialog.class);
+        pref.put("JavaFXModuleLocation", location);
+    }
+
+    
+
+    public static String confirmJavaFXLocation(String fileLocText) {
+        if (fileLocText != null && !"".equals(fileLocText.trim())) {
+            if (new File(fileLocText + File.separator + "javafx.web.jar").exists() && (new File(fileLocText + File.separator + "javafx.web.jar")).exists()) {
+                return new File(fileLocText + File.separator + "..").getAbsolutePath();
+            } else if (new File(fileLocText + File.separator + "lib" + File.separator + "javafx.web.jar").exists()
+                    && (new File(fileLocText + File.separator + "lib" + File.separator + "javafx.web.jar")).exists()) {
+                return new File(fileLocText).getAbsolutePath();
+            }
+        }
+        return fileLocText;
+    }
+
+    public static boolean isValidJavaFXLocation(String fileLocText) {
+        if (fileLocText != null && !"".equals(fileLocText.trim())) {
+            String fileLocation1 = fileLocText + File.separator + "lib" + File.separator + "javafx.web.jar";
+            String fileLocation2 = fileLocText + File.separator + "lib" + File.separator + "javafx.controls.jar";
+            return (new File(fileLocation1)).exists() && (new File(fileLocation2)).exists();
+        }
+        return false;
+    }
+
+    public static String getValidJFXLoction(String fileLocText) {
+        return fileLocText + File.separator + "lib";
+    }
+
 
 
 

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.acvitech.spa4j.util;
 
-module com.acvitech.spa4j {
+/**
+ *
+ * @author avikarz
+ */
+public interface Bean {
     
-    exports com.acvitech.spa4j.jfx;
-    exports com.acvitech.spa4j.util;
+    public void init();
+    public void destroy();
     
-    requires transitive javafx.controls;
-    requires transitive javafx.web;
-    requires java.desktop;
-    requires java.prefs;
-    requires jdk.jsobject;
 }

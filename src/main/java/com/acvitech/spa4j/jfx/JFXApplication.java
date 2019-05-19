@@ -1,31 +1,46 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2019 acvitech.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.acvitech.spa4j.jfx;
 
-import com.acvitech.spa4j.support.ConfigManager;
-import com.acvitech.spa4j.support.DebugMgmt;
+import com.acvitech.spa4j.util.RuntimeSettings;
+import com.acvitech.spa4j.jfx.support.BrowseJFXDialog;
+import static com.acvitech.spa4j.jfx.support.BrowseJFXDialog.getJavaFXLocation;
+import static com.acvitech.spa4j.jfx.support.BrowseJFXDialog.getValidJFXLoction;
+import static com.acvitech.spa4j.jfx.support.BrowseJFXDialog.isValidJavaFXLocation;
+import static com.acvitech.spa4j.jfx.support.BrowseJFXDialog.setJavaFXLocation;
+import com.acvitech.spa4j.jfx.support.JFXWindow;
+import com.acvitech.spa4j.util.SPA4JLogger;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.prefs.Preferences;
 
 /**
  *
  * @author avikarz
  */
-public class JFXAppLauncher {
+public class JFXApplication {
 
     /**
      * This method starts the JavaFX Application
-     * 
      * @param args not null command line arguments received in main()
      */
-    public static void launch(String args[]) {
+    public void launch(String args[]) {
 
         if (!isValidJavaFXLocation(getJavaFXLocation())) {
             setJavaFXLocation("");
@@ -33,22 +48,22 @@ public class JFXAppLauncher {
 
         if (args!=null && args.length > 0) {
 
-            if (args[0].trim().equalsIgnoreCase("debug") || (args.length > 1 && args[1].trim().equalsIgnoreCase("debug"))) {
-                DebugMgmt.setBuildDebugEnabled(true);
-            } else if (args[0].trim().equalsIgnoreCase("debug-build") || (args.length > 1 && args[1].trim().equalsIgnoreCase("debug-build"))) {
-                DebugMgmt.setBuildDebugEnabled(true);
+            if (args[0].trim().equalsIgnoreCase("debug") || (args[0].trim().equalsIgnoreCase("execReady") && (args.length > 1 && args[1].trim().equalsIgnoreCase("debug")))) {
+                SPA4JLogger.setBuildDebugEnabled(true);
+            } else if (args[0].trim().equalsIgnoreCase("debug-build") || (args[0].trim().equalsIgnoreCase("execReady") && (args.length > 1 && args[1].trim().equalsIgnoreCase("debug-build")))) {
+                SPA4JLogger.setBuildDebugEnabled(true);
             } else if (args[0].trim().equalsIgnoreCase("reset-jfx")) {
                 setJavaFXLocation("");
             }
 
-            if (args[0].trim().equalsIgnoreCase("execReady")) {
+            if ( args[0].trim().equalsIgnoreCase("execReady")) {
                 JFXWindow.launch(args);
                 System.exit(0);
             }
 
         }
 
-        if (JAVA_VERSION >= 1.8 && JAVA_VERSION < 11) {
+        if ((JAVA_VERSION >= 1.8 && JAVA_VERSION < 11) || RuntimeSettings.isJFXClassesAvailable()) {
             JFXWindow.launch(args);
             System.exit(0);
         }
@@ -59,8 +74,6 @@ public class JFXAppLauncher {
 
             if (!(jfxLocation != null && !"".equals(jfxLocation) && isValidJavaFXLocation(jfxLocation))) {
 
-                /* Set the Nimbus look and feel */
-                //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
                 /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
                  * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
                  */
@@ -72,10 +85,9 @@ public class JFXAppLauncher {
                         }
                     }
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-                    DebugMgmt.log(ex);
+                    SPA4JLogger.log(ex);
                 }
-                //</editor-fold>
-
+                
                 BrowseJFXDialog dialog = new BrowseJFXDialog(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
@@ -103,7 +115,7 @@ public class JFXAppLauncher {
 
                     if (jarLocation.exists()) {
 
-                        String commandToRun = "java " + "--module-path=\"" + jfxLocation + "\"" + " " + "--add-modules=" + ConfigManager.getJavafxModules() + " -jar \"" + jarPath + "\"";
+                        String commandToRun = "java " + "--module-path=\"" + jfxLocation + "\"" + " " + "--add-modules=" + RuntimeSettings.getRequiredModule() + " -jar \"" + jarPath + "\"";
                         String argsList = "";
                         for (String arg : args) {
                             argsList += " " + arg;
@@ -120,7 +132,7 @@ public class JFXAppLauncher {
                                 try {
                                     ps = Runtime.getRuntime().exec(finalCommand);
                                 } catch (IOException ex) {
-                                    DebugMgmt.error(ex);
+                                    SPA4JLogger.error(ex);
                                 }
                             }
 
@@ -143,23 +155,26 @@ public class JFXAppLauncher {
                             InputStream ins = ps.getInputStream();
                             byte[] bytes = new byte[1024];
                             while ((i = ins.read(bytes)) > -1) {
-                                DebugMgmt.log(new String(bytes, 0, i));
+                                SPA4JLogger.log(new String(bytes, 0, i));
                             }
                             ps.destroy();
                         } catch (IOException ex) {
-                            DebugMgmt.error(ex);
+                            SPA4JLogger.error(ex);
                         }
                     } else {
-                        DebugMgmt.error("The Executable at " + jarPath + " is not found");
+                        SPA4JLogger.error("The Executable at " + jarPath + " is not found");
                     }
                     System.exit(0);
                 } catch (UnsupportedEncodingException ex) {
-                    DebugMgmt.error(ex);
+                    SPA4JLogger.error(ex);
                 }
             }
         }
     }
 
+    
+    
+    
     static double getVersion() {
         String version = System.getProperty("java.version");
         int pos = version.indexOf('.');
@@ -170,51 +185,62 @@ public class JFXAppLauncher {
         }
         return Double.parseDouble(version.substring(0, pos));
     }
+
+    private JFXApplication(){
+    
+    }
+    
+    public static JFXApplication prepare(){
+        return JFX_APPLICATION;
+    }
+    
+    public JFXApplication setIcon(String url){
+        RuntimeSettings.setApplicationIconURI(url);
+        return JFX_APPLICATION;
+    }
+    
+    public JFXApplication setTitle(String title){
+        RuntimeSettings.setApplicationTitle(title);
+        return JFX_APPLICATION;
+    }
+    
+    public JFXApplication setStartUrl(String url){
+        RuntimeSettings.setSpaInternalURL(url);
+        return JFX_APPLICATION;
+    }
+    
+    public JFXApplication addBean(String beanName,Class clazz){
+        RuntimeSettings.setupBean(beanName, clazz);
+        return JFX_APPLICATION;
+    }
+    
+    public JFXApplication setDebugURL(String debugURL){
+        RuntimeSettings.setSpaDebugURL(debugURL);
+        return JFX_APPLICATION;
+    }
+    
+    public JFXApplication setColor(String color){
+        RuntimeSettings.setWinColor(color);
+        return JFX_APPLICATION;
+    }
     
     
-        public static String getJavaFXLocation() {
-        Preferences pref;
-        pref = Preferences.userNodeForPackage(BrowseJFXDialog.class);
-        String ojfLocation = System.getenv("JFX_HOME");
-        if (ojfLocation == null || "".equals(ojfLocation.trim())) {
-            ojfLocation = pref.get("JavaFXModuleLocation", "");
-        }
-        return ojfLocation;
+    public JFXApplication setWidth(int width){
+        RuntimeSettings.setWinWidth(width);
+        return JFX_APPLICATION;
     }
-
-    public static void setJavaFXLocation(String location) {
-        Preferences pref;
-        pref = Preferences.userNodeForPackage(BrowseJFXDialog.class);
-        pref.put("JavaFXModuleLocation", location);
-    }
-
     
-
-    public static String confirmJavaFXLocation(String fileLocText) {
-        if (fileLocText != null && !"".equals(fileLocText.trim())) {
-            if (new File(fileLocText + File.separator + "javafx.web.jar").exists() && (new File(fileLocText + File.separator + "javafx.web.jar")).exists()) {
-                return new File(fileLocText + File.separator + "..").getAbsolutePath();
-            } else if (new File(fileLocText + File.separator + "lib" + File.separator + "javafx.web.jar").exists()
-                    && (new File(fileLocText + File.separator + "lib" + File.separator + "javafx.web.jar")).exists()) {
-                return new File(fileLocText).getAbsolutePath();
-            }
-        }
-        return fileLocText;
+    public JFXApplication setHeight(int height){
+        RuntimeSettings.setWinHeight(height);
+        return JFX_APPLICATION;
     }
-
-    public static boolean isValidJavaFXLocation(String fileLocText) {
-        if (fileLocText != null && !"".equals(fileLocText.trim())) {
-            String fileLocation1 = fileLocText + File.separator + "lib" + File.separator + "javafx.web.jar";
-            String fileLocation2 = fileLocText + File.separator + "lib" + File.separator + "javafx.controls.jar";
-            return (new File(fileLocation1)).exists() && (new File(fileLocation2)).exists();
-        }
-        return false;
-    }
-
-    public static String getValidJFXLoction(String fileLocText) {
-        return fileLocText + File.separator + "lib";
-    }
-
-    public static double JAVA_VERSION = getVersion();
+    
+    
+    private static final JFXApplication JFX_APPLICATION = new JFXApplication();
+    private final static double JAVA_VERSION = getVersion();
     private static Process ps;
+    
+    
+    
 }
+

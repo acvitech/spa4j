@@ -3,13 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.acvitech</groupId>
     <artifactId>spa4j</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     
     
     <inceptionYear>2015</inceptionYear>
     
-    <name>Single Page Application wrapper in Java</name>
+    <name>SPA4J</name>
     <description>Single Page Application for Java (SPA4J) is a library created to support and run Single Page application (like Angular application) in different Java based wrappers. As of now, the library provides supporting classes to wrap an angular application in a JavaFX based desktop application</description>
     <url>https://github.com/acvitech/spa4j</url>
 
@@ -64,7 +64,6 @@
         <maven-gpg-plugin-version>1.6</maven-gpg-plugin-version>
     </properties>
     <dependencies>   
-    
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -74,7 +73,7 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>12</version>
+            <version>${javafx.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
