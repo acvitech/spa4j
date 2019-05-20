@@ -49,21 +49,18 @@ public class JFXApplication {
         if (args!=null && args.length > 0) {
 
             if (args[0].trim().equalsIgnoreCase("debug") || (args[0].trim().equalsIgnoreCase("execReady") && (args.length > 1 && args[1].trim().equalsIgnoreCase("debug")))) {
-                SPA4JLogger.setBuildDebugEnabled(true);
+                SPA4JLogger.setDebugEnabled(true);
             } else if (args[0].trim().equalsIgnoreCase("debug-build") || (args[0].trim().equalsIgnoreCase("execReady") && (args.length > 1 && args[1].trim().equalsIgnoreCase("debug-build")))) {
                 SPA4JLogger.setBuildDebugEnabled(true);
             } else if (args[0].trim().equalsIgnoreCase("reset-jfx")) {
                 setJavaFXLocation("");
             }
 
-            if ( args[0].trim().equalsIgnoreCase("execReady")) {
-                JFXWindow.launch(args);
-                System.exit(0);
-            }
-
         }
 
-        if ((JAVA_VERSION >= 1.8 && JAVA_VERSION < 11) || RuntimeSettings.isJFXClassesAvailable()) {
+        if ((args!=null && args.length > 0 && args[0].trim().equalsIgnoreCase("execReady")) 
+                ||(JAVA_VERSION >= 1.8 && JAVA_VERSION < 11) 
+                || RuntimeSettings.isJFXClassesAvailable()) {
             JFXWindow.launch(args);
             System.exit(0);
         }

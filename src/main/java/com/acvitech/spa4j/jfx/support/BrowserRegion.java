@@ -46,7 +46,6 @@ public class BrowserRegion extends Region {
     private HostServices hostServices;
     private JSObject window;
     private Stage stage;
-
     private WebView webView = new WebView();
    
 
@@ -107,16 +106,6 @@ public class BrowserRegion extends Region {
     private BrowserRegion() {
         getStyleClass().add("browser");
         URL url = null;
-        try {
-            if (SPA4JLogger.isDebugEnabled()) {
-                url = new URL(RuntimeSettings.getSpaDebugURL());  
-            } else {
-                url = getClass().getResource(RuntimeSettings.getSpaInternalURL());
-            }
-
-        } catch (MalformedURLException ex) {
-            SPA4JLogger.log(ex);
-        }
 
         getWebEngine().getLoadWorker().stateProperty().addListener((ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) -> {
 
@@ -174,8 +163,21 @@ public class BrowserRegion extends Region {
             }
         });
 
+        try {
+            if (SPA4JLogger.isDebugEnabled()) {
+                url = new URL(RuntimeSettings.getSpaDebugURL());  
+            } else {
+                url = getClass().getResource(RuntimeSettings.getSpaInternalURL());
+            }
+
+        } catch (MalformedURLException ex) {
+            SPA4JLogger.log(ex);
+        }
+
         if (url != null) {
-            getWebEngine().load(url.toExternalForm());
+            String urlToLoad = url.toExternalForm();
+            SPA4JLogger.log("Loding HTML application from :"+ urlToLoad);
+            getWebEngine().load(urlToLoad);
         } else {
             
         }
