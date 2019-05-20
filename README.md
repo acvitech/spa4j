@@ -5,7 +5,8 @@ SPA4J is a library created to help developer build Java based application for ru
 
 1. JavaFX based desktop application 
 
-The upcoming version will target following wrapping
+The upcoming version will target following wrapping 
+
 2. Web Archive and supports progressive web app using AppCache
 
 The project will also support other SPA app type (like React), if not supported automatically.
